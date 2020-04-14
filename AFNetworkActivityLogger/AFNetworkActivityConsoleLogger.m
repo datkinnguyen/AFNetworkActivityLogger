@@ -37,53 +37,65 @@
 
 
 - (void)URLSessionTaskDidStart:(NSURLSessionTask *)task {
-    NSURLRequest *request = task.originalRequest;
-
-    NSString *body = nil;
-    if ([request HTTPBody]) {
-        body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
-    }
-
-    switch (self.level) {
-        case AFLoggerLevelDebug:
-            NSLog(@"%@ '%@': %@ %@", [request HTTPMethod], [[request URL] absoluteString], [request allHTTPHeaderFields], body);
-            break;
-        case AFLoggerLevelInfo:
-            NSLog(@"%@ '%@'", [request HTTPMethod], [[request URL] absoluteString]);
-            break;
-        default:
-            break;
+    @try {
+        NSURLRequest *request = task.originalRequest;
+        
+        NSString *body = nil;
+        if ([request HTTPBody]) {
+            body = [[NSString alloc] initWithData:[request HTTPBody] encoding:NSUTF8StringEncoding];
+        }
+        
+        switch (self.level) {
+            case AFLoggerLevelDebug:
+                NSLog(@"%@ '%@': %@ %@", [request HTTPMethod], [[request URL] absoluteString], [request allHTTPHeaderFields], body);
+                break;
+            case AFLoggerLevelInfo:
+                NSLog(@"%@ '%@'", [request HTTPMethod], [[request URL] absoluteString]);
+                break;
+            default:
+                break;
+        }
+    } @catch (NSException *exception) {
+        NSLog(@"AFNetworkActivityConsoleLogger::URLSessionTaskDidStart exception: %@", exception);
+    } @finally {
+        
     }
 }
 
 - (void)URLSessionTaskDidFinish:(NSURLSessionTask *)task withResponseObject:(id)responseObject inElapsedTime:(NSTimeInterval )elapsedTime withError:(NSError *)error {
-    NSUInteger responseStatusCode = 0;
-    NSDictionary *responseHeaderFields = nil;
-    if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
-        responseStatusCode = (NSUInteger)[(NSHTTPURLResponse *)task.response statusCode];
-        responseHeaderFields = [(NSHTTPURLResponse *)task.response allHeaderFields];
-    }
-
-    if (error) {
-        switch (self.level) {
-            case AFLoggerLevelDebug:
-            case AFLoggerLevelInfo:
-            case AFLoggerLevelError:
-                NSLog(@"[Error] %@ '%@' (%ld) [%.04f s]: %@", [task.originalRequest HTTPMethod], [[task.response URL] absoluteString], (long)responseStatusCode, elapsedTime, error);
-            default:
-                break;
+    @try {
+        NSUInteger responseStatusCode = 0;
+        NSDictionary *responseHeaderFields = nil;
+        if ([task.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            responseStatusCode = (NSUInteger)[(NSHTTPURLResponse *)task.response statusCode];
+            responseHeaderFields = [(NSHTTPURLResponse *)task.response allHeaderFields];
         }
-    } else {
-        switch (self.level) {
-            case AFLoggerLevelDebug:
-                NSLog(@"%ld '%@' [%.04f s]: %@ %@", (long)responseStatusCode, [[task.response URL] absoluteString], elapsedTime, responseHeaderFields, responseObject);
-                break;
-            case AFLoggerLevelInfo:
-                NSLog(@"%ld '%@' [%.04f s]", (long)responseStatusCode, [[task.response URL] absoluteString], elapsedTime);
-                break;
-            default:
-                break;
+        
+        if (error) {
+            switch (self.level) {
+                case AFLoggerLevelDebug:
+                case AFLoggerLevelInfo:
+                case AFLoggerLevelError:
+                    NSLog(@"[Error] %@ '%@' (%ld) [%.04f s]: %@", [task.originalRequest HTTPMethod], [[task.response URL] absoluteString], (long)responseStatusCode, elapsedTime, error);
+                default:
+                    break;
+            }
+        } else {
+            switch (self.level) {
+                case AFLoggerLevelDebug:
+                    NSLog(@"%ld '%@' [%.04f s]: %@ %@", (long)responseStatusCode, [[task.response URL] absoluteString], elapsedTime, responseHeaderFields, responseObject);
+                    break;
+                case AFLoggerLevelInfo:
+                    NSLog(@"%ld '%@' [%.04f s]", (long)responseStatusCode, [[task.response URL] absoluteString], elapsedTime);
+                    break;
+                default:
+                    break;
+            }
         }
+    } @catch (NSException *exception) {
+        NSLog(@"AFNetworkActivityConsoleLogger::URLSessionTaskDidFinish exception: %@", exception);
+    } @finally {
+        
     }
 }
 

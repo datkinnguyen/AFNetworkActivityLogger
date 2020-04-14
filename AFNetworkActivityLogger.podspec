@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'AFNetworkActivityLogger'
-  s.version  = '4.0.0'
+  s.version  = '4.0.1'
   s.license  = 'MIT'
   s.summary  = 'AFNetworking 4.0 Extension for Network Request Logging'
   s.homepage = 'https://github.com/AFNetworking/AFNetworkActivityLogger'
